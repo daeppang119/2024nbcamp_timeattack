@@ -3,12 +3,56 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Input, Spacer } from "@nextui-org/react";
+import axios from "axios";
 
 export default function LoginPage() {
   const [loginId, setLoginId] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [isEmailInvalid, setIsEmailInvalid] = useState(false);
+  const [isPasswordInvalid, setIsPasswordInvalid] = useState(false);
 
   const router = useRouter();
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value;
+
+    setIsEmailInvalid(!newEmail.includes("@") || !newEmail.includes("."));
+    setLoginId(newEmail);
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+
+    setIsPasswordInvalid(newPassword.length < 4);
+    setLoginPassword(newPassword);
+  };
+
+  const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post(
+        "https://moneyfulpublicpolicy.co.kr/login",
+        {
+          id: loginId,
+          password: loginPassword,
+        }
+      );
+
+      console.log(response);
+
+      alert("로그인 완료되었습니다.");
+    } catch (error: any) {
+      console.error("로그인 요청 중 에러 발생:", error);
+
+      if (error.response) {
+        alert("에러: " + JSON.stringify(error.response.data));
+      }
+    }
+
+    setLoginId("");
+    setLoginPassword("");
+  };
 
   const handlerSinupBtn = () => {
     router.push("/sinup");
@@ -18,40 +62,47 @@ export default function LoginPage() {
     <div className="w-[350px]">
       <h3 className="text-2xl font-bold text-center">로그인</h3>
       <Spacer y={8} />
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
+      <form onSubmit={handleLoginSubmit}>
         <Input
-          type="text"
+          type="email"
           value={loginId}
-          onChange={(e) => setLoginId(e.target.value)}
+          onChange={handleEmailChange}
           variant="bordered"
-          label="로그인"
-          isInvalid={false}
+          label="아이디"
+          isInvalid={isEmailInvalid}
           placeholder="이메일 주소를 입력해주세요."
-          // errorMessage="등록된 이메일이 없습니다."
-          required
+          errorMessage={
+            isEmailInvalid ? "올바른 이메일 주소를 입력해주세요" : ""
+          }
         />
+
         <Spacer y={4} />
+
         <Input
-          type="current-password"
+          type="password"
           value={loginPassword}
-          onChange={(e) => setLoginPassword(e.target.value)}
+          onChange={handlePasswordChange}
           variant="bordered"
           label="비밀번호"
-          isInvalid={false}
+          isInvalid={isPasswordInvalid}
           placeholder="비밀번호를 입력해주세요."
-          // errorMessage="등록된 이메일이 없습니다."
-          required
+          errorMessage={
+            isPasswordInvalid ? "비밀번호는 4자 이상이어야 합니다." : ""
+          }
         />
+
         <Spacer y={2} />
         <p className="text-sm text-right text-blue-950">
           비밀번호를 잊으셨나요?
         </p>
         <Spacer y={8} />
-        <Button className="w-full p-[1.5rem]" color="primary" variant="solid">
+
+        <Button
+          type="submit"
+          className="w-full p-[1.5rem]"
+          color="primary"
+          variant="solid"
+        >
           로그인
         </Button>
       </form>

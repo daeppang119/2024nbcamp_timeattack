@@ -18,7 +18,6 @@ export default function SinupPage() {
   const [passwordMatchError, setPasswordMatchError] = useState<boolean>(false);
   const [errorMessageFromServer, setErrorMessageFromServer] =
     useState<string>("");
-
   const [isNickNameInvalid, setIsNickNameInvalid] = useState(true);
   const [isEmailInvalid, setIsEmailInvalid] = useState(true);
   const [isPasswordInvalid, setIsPasswordInvalid] = useState(true);
@@ -28,7 +27,7 @@ export default function SinupPage() {
   const handleNickNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newNickName = e.target.value;
 
-    setIsNickNameInvalid(newNickName.length < 3);
+    setIsNickNameInvalid(newNickName.length < 2);
     setSignupNickName(newNickName);
   };
 
@@ -66,9 +65,17 @@ export default function SinupPage() {
         }
       );
 
-      console.log(response.data);
+      // console.log(response.data);
+
+      if (response.data.success) {
+        alert(response.data.message);
+
+        setTimeout(() => {
+          router.push("/login");
+        }, 1000);
+      }
     } catch (error: any) {
-      console.error("에러:", error.response?.data);
+      alert(error.response?.data);
 
       setErrorMessageFromServer(error.response?.data?.message || "");
     }
@@ -95,7 +102,8 @@ export default function SinupPage() {
           label="닉네임"
           isInvalid={isNickNameInvalid}
           placeholder="닉네임을 입력해주세요."
-          errorMessage={isNickNameInvalid ? "닉네임 3자 이상 입력해주세요" : ""}
+          errorMessage={isNickNameInvalid ? "닉네임 2자 이상 입력해주세요" : ""}
+          required
         />
 
         <Spacer y={4} />
@@ -111,6 +119,7 @@ export default function SinupPage() {
           errorMessage={
             isEmailInvalid ? "올바른 이메일 주소를 입력해주세요" : ""
           }
+          required
         />
 
         <Spacer y={4} />
@@ -126,6 +135,7 @@ export default function SinupPage() {
           errorMessage={
             isPasswordInvalid ? "4자 이상의 비밀번호를 입력해주세요" : ""
           }
+          required
         />
 
         <Spacer y={4} />
@@ -141,6 +151,7 @@ export default function SinupPage() {
           errorMessage={
             passwordMatchError ? "비밀번호가 일치하지 않습니다." : ""
           }
+          required
         />
 
         <Spacer y={8} />
@@ -155,10 +166,10 @@ export default function SinupPage() {
       </form>
       <Spacer y={8} />
       <p className="text-gray-400 text-sm text-center">
-        이미 계정이 있으신가요?{" "}
+        이미 계정이 있으신가요?
         <span
           onClick={handlerLoginBtn}
-          className="text-blue-950 cursor-pointer"
+          className="text-blue-950 cursor-pointer px-[5px]"
         >
           로그인
         </span>
